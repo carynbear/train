@@ -125,9 +125,20 @@ requires) the same arguments as `sbatch`:
 - In sessions with a reservation, specify the reservation with 
   `--reservation=name_of_reservation`
 
-So to start an interactive session using KNL nodes today (using our `tapia` 
-reservation):
+So to start an interactive session using KNL nodes today (using our `tapia` reservation):
 
 ```console
   $ salloc -C knl --reservation=tapia -N 1 -t 30 -L SCRATCH
+  train35@nid02516>
 ```
+
+The above command reserves 1 node 02516 for 30 minutes, so that you can directly run a script. You don't need to schedule the script. Try running:
+
+```console
+  $ source my_first_job.sh
+```
+
+When you're ready to exit and release the nodes you've reserved just type `exit`.
+
+Try the above instructions with 2 requested nodes. 
+

@@ -1,4 +1,4 @@
-# CSGF HPC Day - Optimization Challenge on Cori (Hackathon)
+# Tapia 2017 - Optimization Challenge on Cori (Hackathon)
 
 We recommend working in teams of 2-3 people
 
@@ -6,10 +6,11 @@ We recommend working in teams of 2-3 people
 
 ```console
 $ module swap craype-haswell craype-mic-knl
-$ ftn -g -debug inline-debug-info -O2 -qopenmp \
-      -dynamic -parallel-source-info=2 \
-      -qopt-report-phase=vec,openmp \
-      -o hack-a-kernel-vtune.ex hack-a-kernel.f90
+$ module unload darshan
+$ module load perftools-base perftools-lite
+$ ftn -g -O2 -qopenmp \
+      -qopt-report -qopt-report-phase=vec,openmp \
+      -o hack-a-kernel.ex hack-a-kernel.f90
 ```
 
 ## Run:
@@ -17,12 +18,14 @@ $ ftn -g -debug inline-debug-info -O2 -qopenmp \
 Make a job script (`hackathon.sh`) like:
 
 ```bash
-#!/bin/bash -l
+#!/bin/bash
 #SBATCH -N 1                     # Use 1 node
 #SBATCH -t 10                    # Set 10 minute time limit
 #SBATCH -L SCRATCH               # Job requires $SCRATCH file system
 #SBATCH -C knl                   # use KNL nodes
-#SBATCH --reservation=csgftrain  # our reservation today
+#SBATCH --reservation=tapia      # our reservation today
+
+module load perftools-base perftools-lite
 
 srun -n 1 ./hack-a-kernel.ex
 ```
@@ -49,6 +52,27 @@ Runtime B:   80.7530000004917
 Runtime C:   2.80499999970198
 Answer: (-16862103.1278241,0.000000000000000E+000)
 (-36828835.9338165,-14463922.8990243)
+```
+
+There will also be a new directory created in the same directory from which you
+submitted the job, called something like "hack-a-kernel.ex+68738-2516s" (the
+numbers may be different in your case). This contains the profiling data for
+the hack-a-kernel program. You can view the data by running the "pat_report"
+command on the directory, e.g.:
+
+```console
+pat_report hack-a-kernel.ex+68738-2516s # (change the dir name as necessary)
+```
+
+This will print a lot of text to the screen. The part that will be of most
+interest is Table 2, the region where it shows which lines of the code consumed
+the most amount of time.
+
+It is convenient to redirect this output to a text file so that you can look
+through it with a text editor:
+
+```console
+pat_report hack-a-kernel.ex+68738-2516s > hack-a-kernel_profiling_report.txt
 ```
 
 ## Optimize the code:
@@ -79,7 +103,7 @@ At 4.50pm we'll we'll announce the winner for the day!
 For the format of your best result, please send an email:
 
 ```
-To: bfriesen@lbl.gov, djbard@lbl.gov, sleak@lbl.gov
+To: bfriesen@lbl.gov, djbard@lbl.gov, mamelara@lbl.gov
 Subject: Hackathon result, team $choose_a_name
 Body:
   Team members' names: 
